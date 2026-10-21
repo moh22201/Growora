@@ -1,49 +1,139 @@
+
 <!doctype html>
-<html lang="ar" dir="rtl">
+<html lang="en">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#183b2b">
-  <meta name="description" content="Growora — ازرع، طوّر مزرعتك، وابنِ عالمك.">
-  <title>Growora — أرض الازدهار</title>
+  <meta name="theme-color" content="#173d2b">
+  <meta name="description" content="Growora — Grow. Upgrade. Build Your Fortune.">
+  <title>Growora — Your Living Farm</title>
   <link rel="stylesheet" href="./styles.css">
 </head>
 <body>
   <header class="topbar">
-    <div class="brand"><span class="brand-mark">✦</span><div><strong>Growora</strong><small>أرض الازدهار</small></div></div>
-    <div class="wallet"><span>رصيد اللعب</span><strong>$0.00</strong></div>
+    <a class="brand" href="#" aria-label="Growora home">
+      <span class="brand-mark">✦</span>
+      <span><strong>Growora</strong><small data-i18n="tagline">Grow. Upgrade. Build Your Fortune.</small></span>
+    </a>
+
+    <div class="top-actions">
+      <label class="language-label" for="languageSelect" data-i18n="language">Language</label>
+      <select id="languageSelect" aria-label="Choose language">
+        <option value="en">English</option>
+        <option value="fr">Français</option>
+      </select>
+      <div class="wallet">
+        <span data-i18n="playBalance">Play balance</span>
+        <strong id="playBalance">$0.00</strong>
+      </div>
+    </div>
   </header>
+
   <main>
     <section class="hero">
       <div class="hero-copy">
-        <span class="eyebrow">عالمك يبدأ من هنا</span>
-        <h1>ازرع اليوم،<br><em>وابنِ عالمك غدًا.</em></h1>
-        <p>عالم زراعي تفاعلي يجمع الزراعة والصيد والنحل والدجاج في رحلة واحدة.</p>
-        <div class="hero-actions"><button id="startBtn">دخول المزرعة</button><span class="status"><i></i> النسخة التأسيسية</span></div>
+        <span class="eyebrow" data-i18n="eyebrow">YOUR WORLD STARTS HERE</span>
+        <h1 data-i18n="heroTitle">Plant today.<br><em>Build tomorrow.</em></h1>
+        <p data-i18n="heroText">Build your farm, grow crops, catch fish, raise chickens and collect honey in a living pixel-inspired world.</p>
+        <div class="hero-actions">
+          <button id="startBtn" data-i18n="enterFarm">Enter your farm</button>
+          <span class="status"><i></i><span data-i18n="prototype">Playable prototype</span></span>
+        </div>
       </div>
-      <div class="scene" aria-label="مشهد تجريبي لمزرعة">
-        <div class="sun"></div><div class="cloud cloud-one"></div><div class="cloud cloud-two"></div>
-        <div class="hill hill-back"></div><div class="hill hill-front"></div>
+
+      <div class="scene" role="img" aria-label="A colorful pixel-inspired farm">
+        <div class="sun"></div>
+        <div class="cloud cloud-one"></div>
+        <div class="cloud cloud-two"></div>
+        <div class="hill hill-back"></div>
+        <div class="hill hill-front"></div>
         <div class="windmill"><div class="mill-top"></div><div class="mill-body"></div><div class="blades"></div></div>
         <div class="path"></div>
-        <div class="field"><div class="crop-row">🌱 🌱 🌱 🌱 🌱</div><div class="crop-row">🌱 🌱 🌱 🌱 🌱</div><div class="crop-row">🌱 🌱 🌱 🌱 🌱</div></div>
+        <div class="field">
+          <div class="crop-row">🌱 🌱 🌱 🌱 🌱</div>
+          <div class="crop-row">🌻 🌱 🌻 🌱 🌻</div>
+          <div class="crop-row">🌱 🌱 🌱 🌱 🌱</div>
+        </div>
         <div class="pond"><span>〰</span><span>〰</span><span>〰</span></div>
-        <div class="tree tree-one">🌳</div><div class="tree tree-two">🌲</div>
+        <div class="tree tree-one">🌳</div>
+        <div class="tree tree-two">🌲</div>
         <div class="farmhouse"><div class="roof"></div><div class="house-body"><span class="door"></span><span class="window"></span></div></div>
         <div class="sign">GROWORA</div>
       </div>
     </section>
-    <section class="systems">
-      <div class="section-heading"><span class="eyebrow">خطتك للمغامرة</span><h2>عالم مليء بالحياة</h2><p>هذه واجهة أولية؛ الأنظمة الفعلية ستُربط لاحقًا بقاعدة بيانات آمنة.</p></div>
-      <div class="system-grid">
-        <article><span class="system-icon">🌾</span><h3>الزراعة</h3><p>9 محاصيل وحقول تتدرج مع تقدمك.</p><b>قيد التجهيز</b></article>
-        <article><span class="system-icon">🎣</span><h3>الصيد</h3><p>أنواع أسماك متعددة وقضبان مختلفة.</p><b>قيد التجهيز</b></article>
-        <article><span class="system-icon">🐝</span><h3>خلية النحل</h3><p>إنتاج العسل ضمن دورات تشغيل.</p><b>قيد التجهيز</b></article>
-        <article><span class="system-icon">🐔</span><h3>حظيرة الدجاج</h3><p>اجمع البيض وبيعه في السوق.</p><b>قيد التجهيز</b></article>
+
+    <section class="game-panel" id="farm">
+      <div class="section-heading">
+        <span class="eyebrow" data-i18n="yourFarm">YOUR FARM</span>
+        <h2 data-i18n="farmTitle">A little land. A big dream.</h2>
+        <p data-i18n="farmText">Choose a crop, plant a seed and return when it is ready to harvest.</p>
+      </div>
+
+      <div class="farm-toolbar">
+        <div>
+          <strong data-i18n="availableFields">Available fields</strong>
+          <span id="fieldCount">1 / 9</span>
+        </div>
+        <div>
+          <strong data-i18n="salesBalance">Sales balance</strong>
+          <span id="salesBalance">$0.00</span>
+        </div>
+      </div>
+
+      <div id="fieldGrid" class="field-grid"></div>
+      <p class="notice" data-i18n="saveNotice">Your demo progress is saved in this browser on this device.</p>
+    </section>
+
+    <section class="game-panel">
+      <div class="section-heading">
+        <span class="eyebrow" data-i18n="marketEyebrow">YOUR HARVEST</span>
+        <h2 data-i18n="marketTitle">Farm market</h2>
+        <p data-i18n="marketText">Sell harvested produce at the fixed prices shown below.</p>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th data-i18n="crop">Crop</th>
+              <th data-i18n="inventory">Inventory</th>
+              <th data-i18n="unitPrice">Unit price</th>
+              <th data-i18n="action">Action</th>
+            </tr>
+          </thead>
+          <tbody id="marketRows"></tbody>
+        </table>
       </div>
     </section>
-    <footer>Growora © <span id="year"></span> — عالمك، مزرعتك، رحلتك.</footer>
+
+    <section class="systems-section">
+      <div class="section-heading">
+        <span class="eyebrow" data-i18n="moreToExplore">MORE TO EXPLORE</span>
+        <h2 data-i18n="systemsTitle">Your farm is just the beginning</h2>
+      </div>
+      <div class="system-grid">
+        <article class="system-card"><span class="system-icon">🎣</span><h3 data-i18n="fishing">Fishing</h3><p data-i18n="fishingText">Cast your rod and discover different fish.</p><span class="coming" data-i18n="comingSoon">Coming soon</span></article>
+        <article class="system-card"><span class="system-icon">🐝</span><h3 data-i18n="beehive">Beehive</h3><p data-i18n="beehiveText">Manage honey production and collect it in time.</p><span class="coming" data-i18n="comingSoon">Coming soon</span></article>
+        <article class="system-card"><span class="system-icon">🐔</span><h3 data-i18n="chickenCoop">Chicken coop</h3><p data-i18n="chickenText">Raise chickens and gather eggs.</p><span class="coming" data-i18n="comingSoon">Coming soon</span></article>
+      </div>
+    </section>
+
+    <section class="wallet-panel">
+      <div>
+        <span class="eyebrow" data-i18n="walletEyebrow">YOUR ACCOUNT</span>
+        <h2 data-i18n="walletTitle">Wallet & payments</h2>
+        <p data-i18n="walletText">Payment and withdrawal actions will be enabled after secure server-side payment verification is connected.</p>
+      </div>
+      <div class="wallet-actions">
+        <button class="secondary" id="depositBtn" data-i18n="deposit">Deposit USDT</button>
+        <button class="secondary" id="withdrawBtn" data-i18n="withdraw">Withdraw</button>
+      </div>
+      <p class="notice" data-i18n="demoNotice">Demo only: no real deposits, transfers or withdrawals are processed here.</p>
+    </section>
+
+    <footer>Growora © <span id="year"></span> — <span data-i18n="footer">Your farm. Your journey.</span></footer>
   </main>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
   <script src="./app.js"></script>
 </body>
 </html>
