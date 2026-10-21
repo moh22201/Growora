@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#183b2b">
+  <meta name="description" content="Growora — ازرع، طوّر مزرعتك، وابنِ عالمك.">
+  <title>Growora — أرض الازدهار</title>
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand"><span class="brand-mark">✦</span><div><strong>Growora</strong><small>أرض الازدهار</small></div></div>
+    <div class="wallet"><span>رصيد اللعب</span><strong>$0.00</strong></div>
+  </header>
+  <main>
+    <section class="hero">
+      <div class="hero-copy">
+        <span class="eyebrow">عالمك يبدأ من هنا</span>
+        <h1>ازرع اليوم،<br><em>وابنِ عالمك غدًا.</em></h1>
+        <p>عالم زراعي تفاعلي يجمع الزراعة والصيد والنحل والدجاج في رحلة واحدة.</p>
+        <div class="hero-actions"><button id="startBtn">دخول المزرعة</button><span class="status"><i></i> النسخة التأسيسية</span></div>
+      </div>
+      <div class="scene" aria-label="مشهد تجريبي لمزرعة">
+        <div class="sun"></div><div class="cloud cloud-one"></div><div class="cloud cloud-two"></div>
+        <div class="hill hill-back"></div><div class="hill hill-front"></div>
+        <div class="windmill"><div class="mill-top"></div><div class="mill-body"></div><div class="blades"></div></div>
+        <div class="path"></div>
+        <div class="field"><div class="crop-row">🌱 🌱 🌱 🌱 🌱</div><div class="crop-row">🌱 🌱 🌱 🌱 🌱</div><div class="crop-row">🌱 🌱 🌱 🌱 🌱</div></div>
+        <div class="pond"><span>〰</span><span>〰</span><span>〰</span></div>
+        <div class="tree tree-one">🌳</div><div class="tree tree-two">🌲</div>
+        <div class="farmhouse"><div class="roof"></div><div class="house-body"><span class="door"></span><span class="window"></span></div></div>
+        <div class="sign">GROWORA</div>
+      </div>
+    </section>
+    <section class="systems">
+      <div class="section-heading"><span class="eyebrow">خطتك للمغامرة</span><h2>عالم مليء بالحياة</h2><p>هذه واجهة أولية؛ الأنظمة الفعلية ستُربط لاحقًا بقاعدة بيانات آمنة.</p></div>
+      <div class="system-grid">
+        <article><span class="system-icon">🌾</span><h3>الزراعة</h3><p>9 محاصيل وحقول تتدرج مع تقدمك.</p><b>قيد التجهيز</b></article>
+        <article><span class="system-icon">🎣</span><h3>الصيد</h3><p>أنواع أسماك متعددة وقضبان مختلفة.</p><b>قيد التجهيز</b></article>
+        <article><span class="system-icon">🐝</span><h3>خلية النحل</h3><p>إنتاج العسل ضمن دورات تشغيل.</p><b>قيد التجهيز</b></article>
+        <article><span class="system-icon">🐔</span><h3>حظيرة الدجاج</h3><p>اجمع البيض وبيعه في السوق.</p><b>قيد التجهيز</b></article>
+      </div>
+    </section>
+    <footer>Growora © <span id="year"></span> — عالمك، مزرعتك، رحلتك.</footer>
+  </main>
+  <script src="./app.js"></script>
+</body>
+</html>
