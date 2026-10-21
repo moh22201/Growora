@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#173e32">
+  <meta name="description" content="Growora — Grow. Upgrade. Build Your Fortune.">
+  <title>Growora — Your Little World</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="#" aria-label="Growora home">
+      <span class="brand-mark">✿</span><span><strong>Growora</strong><small>Grow. Upgrade. Build Your Fortune.</small></span>
+    </a>
+    <div class="top-actions">
+      <label class="language-label" for="languageSelect">Language</label>
+      <select id="languageSelect" aria-label="Language">
+        <option value="en">English</option><option value="fr">Français</option>
+      </select>
+      <div class="balance-chip"><span>＄</span><div><small data-i18n="playBalance">Play balance</small><strong id="playBalance">$10.00</strong></div></div>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="hero-copy">
+        <span class="eyebrow" data-i18n="welcome">YOUR WORLD, YOUR PACE</span>
+        <h1 data-i18n="heroTitle">A little land.<br><em>A lot of possibilities.</em></h1>
+        <p data-i18n="heroText">Plant your first seeds, care for your fields, and grow your farm one harvest at a time.</p>
+        <div class="hero-buttons">
+          <button id="startBtn" class="button button-primary" data-i18n="enterFarm">Enter your farm <span>↘</span></button>
+          <span class="demo-note" data-i18n="demoNote">Demo mode · balances are not real money</span>
+        </div>
+      </div>
+      <div class="world-preview" aria-label="Illustrated farm world">
+        <div class="pixel-sun"></div><div class="pixel-cloud cloud-one"></div><div class="pixel-cloud cloud-two"></div>
+        <div class="mountain mountain-back"></div><div class="mountain mountain-front"></div>
+        <div class="windmill"><div class="mill-top"></div><div class="mill-body"></div><div class="mill-blades"></div></div>
+        <div class="tree tree-one"><i></i><b></b></div><div class="tree tree-two"><i></i><b></b></div>
+        <div class="house"><div class="roof"></div><div class="house-body"><i></i><b></b></div></div>
+        <div class="pond"><span></span><span></span></div>
+        <div class="preview-path"></div>
+        <div class="preview-field"><i>🌱</i><i>🌾</i><i>🌱</i><i>🌾</i><i>🌱</i><i>🌾</i></div>
+        <div class="world-sign">GROWORA <small>FARM</small></div>
+      </div>
+    </section>
+
+    <section id="farm" class="section farm-section">
+      <div class="section-heading">
+        <div><span class="eyebrow" data-i18n="yourLand">YOUR LITTLE WORLD</span><h2 data-i18n="farmTitle">The farm</h2><p data-i18n="farmSubtitle">Choose a plot, plant its crop, then come back when it is ready.</p></div>
+        <div class="farm-stats"><div><small data-i18n="fieldsUnlocked">Fields open</small><strong><span id="fieldCount">1</span> / 9</strong></div><div><small data-i18n="salesBalance">Sales balance</small><strong id="salesBalance">$0.00</strong></div></div>
+      </div>
+
+      <div class="farm-world">
+        <div class="world-toolbar"><span class="world-dot"></span><span data-i18n="livingFarm">YOUR LIVING FARM</span><span class="toolbar-hint" data-i18n="tapPlot">Tap a field to interact</span></div>
+        <div class="world-ground">
+          <div class="world-decoration deco-flower">✿</div><div class="world-decoration deco-flower two">✿</div>
+          <div class="little-fence fence-left"></div><div class="little-fence fence-right"></div>
+          <div id="fieldGrid" class="field-grid" aria-live="polite"></div>
+          <div class="world-creatures"><span class="butterfly">🦋</span><span class="farm-chicken">🐓</span><span class="farm-bee">🐝</span></div>
+          <div class="world-path"></div>
+        </div>
+        <div class="farm-legend"><span><i class="legend-ready"></i><b data-i18n="readyLegend">Ready to harvest</b></span><span><i class="legend-growing"></i><b data-i18n="growingLegend">Growing</b></span><span><i class="legend-locked"></i><b data-i18n="lockedLegend">Locked field</b></span></div>
+      </div>
+      <p class="notice" data-i18n="saveNotice">Your demo progress is saved on this device. It is not connected to real payments.</p>
+    </section>
+
+    <section class="section market-section">
+      <div class="section-heading compact"><div><span class="eyebrow" data-i18n="harvestMarket">HARVEST & TRADE</span><h2 data-i18n="marketTitle">Farm market</h2><p data-i18n="marketSubtitle">Sell what you harvest and add the proceeds to your sales balance.</p></div></div>
+      <div class="market-card">
+        <div class="market-head"><span data-i18n="crop">Crop</span><span data-i18n="inStorage">In storage</span><span data-i18n="unitPrice">Unit price</span><span data-i18n="action">Action</span></div>
+        <div id="marketRows"></div>
+      </div>
+    </section>
+
+    <section class="section next-section">
+      <div class="section-heading compact"><div><span class="eyebrow" data-i18n="moreToExplore">MORE TO EXPLORE</span><h2 data-i18n="beyondFields">Beyond the fields</h2><p data-i18n="systemsSubtitle">New corners of your world will become playable in future updates.</p></div></div>
+      <div class="system-grid">
+        <article class="system-card fishing-card"><div class="system-illustration">🎣<span>〰️</span></div><div><span class="system-tag" data-i18n="comingSoon">COMING SOON</span><h3 data-i18n="fishing">Fishing pond</h3><p data-i18n="fishingDesc">Cast a line, wait for a bite, and collect your catch.</p></div></article>
+        <article class="system-card bee-card"><div class="system-illustration">🐝<span>✿</span></div><div><span class="system-tag" data-i18n="comingSoon">COMING SOON</span><h3 data-i18n="beehive">Bee garden</h3><p data-i18n="beeDesc">Keep your hive buzzing and gather sweet honey.</p></div></article>
+        <article class="system-card chicken-card"><div class="system-illustration">🐔<span>🥚</span></div><div><span class="system-tag" data-i18n="comingSoon">COMING SOON</span><h3 data-i18n="chickenCoop">Chicken coop</h3><p data-i18n="chickenDesc">Care for your chickens and collect fresh eggs.</p></div></article>
+      </div>
+    </section>
+
+    <section class="section wallet-section">
+      <div class="wallet-copy"><span class="eyebrow" data-i18n="wallet">WALLET</span><h2 data-i18n="walletTitle">Your balances, at a glance</h2><p data-i18n="walletText">This version is a local demo. Deposits and withdrawals are not active yet.</p></div>
+      <div class="wallet-balances"><div><small data-i18n="playBalance">Play balance</small><strong id="walletPlayBalance">$10.00</strong><p data-i18n="spendSeeds">Used for seeds and field upgrades</p></div><div><small data-i18n="salesBalance">Sales balance</small><strong id="walletSalesBalance">$0.00</strong><p data-i18n="withdrawWallet">Future withdrawal eligibility balance</p></div></div>
+      <div class="wallet-actions"><button class="button button-muted" id="depositBtn" data-i18n="deposit">Deposit</button><button class="button button-outline" id="withdrawBtn" data-i18n="withdraw">Withdraw</button></div>
+    </section>
+  </main>
+
+  <footer><a class="footer-brand" href="#">✿ Growora</a><span data-i18n="footerText">A growing world, one little step at a time.</span><span>© <span id="year"></span> Growora</span></footer>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+</body>
+</html>
