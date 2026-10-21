@@ -752,3 +752,31 @@ select:focus-visible {
     animation: none !important;
   }
 }
+
+/* GROWORA HOTFIX — remove nested-looking canvas zoom */
+#world {
+  transform: none !important;
+  width: 100% !important;
+  height: 100% !important;
+  display: block;
+}
+
+.world-frame {
+  width: 100%;
+  height: calc(100svh - 145px);
+  min-height: 480px;
+  max-height: none;
+  overflow: hidden;
+}
+
+@media (max-width: 520px) {
+  main {
+    padding: 4px 4px 0;
+  }
+
+  .world-frame {
+    height: calc(100svh - 145px);
+    min-height: 480px;
+    flex: 1 0 auto;
+  }
+}
