@@ -86,12 +86,93 @@ function clickPlot(i){const crop=CROPS[i],p=state.plots[i],unlocked=i<state.unlo
  if(ready){modal(cropName(i),crop.emoji,tr('ready')+' · '+crop.qty+' units',[{label:tr('harvest'),action:()=>{state.inventory[i]+=crop.qty;p.plantedAt=0;save();showToast(tr('harvested'));drawOnce()}},{label:tr('close'),secondary:true}]);return}
  modal(cropName(i),'🌱',tr('growing')+' · '+formatTime(Math.max(0,crop.grow*1000-elapsed)/1000),[{label:tr('close')}]);}
 function formatTime(seconds){seconds=Math.ceil(seconds);const h=Math.floor(seconds/3600),m=Math.floor(seconds%3600/60);return h?`${h}h ${m}m`:`${m} min`}
-function drawOnce(){updateHud()}
-canvas.addEventListener('click',e=>{const r=canvas.getBoundingClientRect(),x=(e.clientX-r.left)*W/r.width,y=(e.clientY-r.top)*H/r.height;for(let i=0;i<plotBoxes.length;i++){const b=plotBoxes[i];if(x>=b.x-4&&x<=b.x+b.w+4&&y>=b.y-10&&y<=b.y+b.h+4){clickPlot(i);return}}if(x>1070&&y>300&&y<510){zone('fishing');return}if(x>830&&x<1060&&y>180&&y<380){zone('coop');return}if(x>650&&x<770&&y>170&&y<285){zone('hive');return}});
-function zone(which){if(which==='farm'){showToast(tr('hint'));return}const info={fishing:['🎣',tr('fishing'),tr('fishingText')],hive:['🐝',tr('honey'),tr('hiveText')],coop:['🥚',tr('eggs'),tr('coopText')]};const [icon,title,desc]=info[which]||info.fishing;modal(title,icon,desc,[{label:tr('ok')}])}
-$('marketBtn').addEventListener('click',()=>{const total=state.inventory.reduce((a,q,i)=>a+q*CROPS[i].price,0);const lines=state.inventory.map((q,i)=>q>0?`${names[lang][i]}: ${q.toFixed(2)} × ${money(CROPS[i].price)}`:null).filter(Boolean).join(' · ');modal(tr('market'), '🧺',lines?`${tr('inventory')}: ${lines}. Total: ${money(total)}`:tr('nothing'),[{label:tr('sell')+' · '+money(total),disabled:total<=0,action:()=>{state.sales+=total;state.inventory=Array(9).fill(0);save();showToast(tr('sold'));drawOnce()}},{label:tr('close'),secondary:true}])});
-$('walletBtn').onclick=()=>modal(tr('wallet'),'👛',tr('walletText'),[{label:tr('ok')}]);$('settingsBtn').onclick=()=>modal(tr('settings'),'⚙️',tr('walletText'),[{label:tr('ok')}]);$('closeModal').onclick=closeModal;$('modalLayer').addEventListener('click',e=>{if(e.target===$('modalLayer'))closeModal()});
-document.querySelectorAll('[data-zone]').forEach(b=>b.addEventListener('click',()=>zone(b.dataset.zone)));
-$('languageSelect').addEventListener('change',e=>{lang=e.target.value;document.documentElement.lang=lang;document.documentElement.dir='ltr';document.querySelectorAll('[data-i18n]').forEach(el=>{const k=el.dataset.i18n;if(T[lang][k])el.textContent=T[lang][k]});drawOnce()});
+function drawOnce(){
+  drawWorld();
+}
+
+function resizeCanvas(){
+  const rect = canvas.getBoundingClientRect();
+  if (!rect.width || !rect.height) return;
+  drawOnce();
+}
+
+window.addEventListener('resize', resizeCanvas);
+
+canvas.addEventListener('click',e=>{
+  const r=canvas.getBoundingClientRect();
+  const x=(e.clientX-r.left)*W/r.width;
+  const y=(e.clientY-r.top)*H/r.height;
+
+  for(let i=0;i<plotBoxes.length;i++){
+    const b=plotBoxes[i];
+    if(x>=b.x-4&&x<=b.x+b.w+4&&y>=b.y-10&&y<=b.y+b.h+4){
+      clickPlot(i);
+      return;
+    }
+  }
+
+  if(x>1070&&y>300&&y<510){zone('fishing');return}
+  if(x>830&&x<1060&&y>180&&y<380){zone('coop');return}
+  if(x>650&&x<770&&y>170&&y<285){zone('hive');return}
+});
+
+function zone(which){
+  if(which==='farm'){
+    showToast(tr('hint'));
+    return;
+  }
+  const info={
+    fishing:['🎣',tr('fishing'),tr('fishingText')],
+    hive:['🐝',tr('honey'),tr('hiveText')],
+    coop:['🥚',tr('eggs'),tr('coopText')]
+  };
+  const [icon,title,desc]=info[which]||info.fishing;
+  modal(title,icon,desc,[{label:tr('ok')}]);
+}
+
+$('marketBtn').addEventListener('click',()=>{
+  const total=state.inventory.reduce((a,q,i)=>a+q*CROPS[i].price,0);
+  const lines=state.inventory.map((q,i)=>
+    q>0?`${names[lang][i]}: ${q.toFixed(2)} × ${money(CROPS[i].price)}`:null
+  ).filter(Boolean).join(' · ');
+
+  modal(tr('market'),'🧺',
+    lines?`${tr('inventory')}: ${lines}. Total: ${money(total)}`:tr('nothing'),
+    [{
+      label:tr('sell')+' · '+money(total),
+      disabled:total<=0,
+      action:()=>{
+        state.sales+=total;
+        state.inventory=Array(9).fill(0);
+        save();
+        showToast(tr('sold'));
+        drawOnce();
+      }
+    },{label:tr('close'),secondary:true}]
+  );
+});
+
+$('walletBtn').onclick=()=>modal(tr('wallet'),'👛',tr('walletText'),[{label:tr('ok')}]);
+$('settingsBtn').onclick=()=>modal(tr('settings'),'⚙️',tr('walletText'),[{label:tr('ok')}]);
+$('closeModal').onclick=closeModal;
+$('modalLayer').addEventListener('click',e=>{
+  if(e.target===$('modalLayer'))closeModal();
+});
+
+document.querySelectorAll('[data-zone]').forEach(b=>
+  b.addEventListener('click',()=>zone(b.dataset.zone))
+);
+
+$('languageSelect').addEventListener('change',e=>{
+  lang=e.target.value;
+  document.documentElement.lang=lang;
+  document.documentElement.dir='ltr';
+  document.querySelectorAll('[data-i18n]').forEach(el=>{
+    const k=el.dataset.i18n;
+    if(T[lang][k])el.textContent=T[lang][k];
+  });
+  drawOnce();
+});
+
 requestAnimationFrame(drawWorld);
 })();
