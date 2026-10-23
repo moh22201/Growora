@@ -1955,3 +1955,84 @@ button { -webkit-tap-highlight-color: transparent; }
   .activity-panel .market-row > b { grid-column: 2; grid-row: 1; }
   .activity-panel .market-sell { grid-column: 3; grid-row: 1 / span 2; }
 }
+/* Growora withdrawal ticker */
+.world-brand-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 7px;
+  min-width: 0;
+  max-width: min(460px, 62%);
+}
+
+.withdrawal-ticker {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  width: 100%;
+  min-width: 0;
+  padding: 6px 10px;
+  overflow: hidden;
+  border: 1px solid rgba(133, 190, 146, 0.3);
+  border-radius: 9px;
+  background: rgba(20, 43, 34, 0.92);
+  color: #e6f4e7;
+  font: 600 10px/1.4 'DM Sans', sans-serif;
+}
+
+.ticker-label {
+  flex: 0 0 auto;
+  color: #9be0a6;
+  font-size: 9px;
+  font-weight: 900;
+  white-space: nowrap;
+}
+
+.ticker-window {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.ticker-track {
+  display: flex;
+  width: max-content;
+  animation: growora-ticker 22s linear infinite;
+}
+
+.ticker-track span {
+  flex: 0 0 auto;
+  padding-right: 48px;
+}
+
+.withdrawal-ticker:hover .ticker-track {
+  animation-play-state: paused;
+}
+
+@keyframes growora-ticker {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+@media (max-width: 600px) {
+  .world-brand-wrap {
+    max-width: 58%;
+  }
+
+  .withdrawal-ticker {
+    gap: 6px;
+    padding: 5px 7px;
+    font-size: 8px;
+  }
+
+  .ticker-label {
+    font-size: 8px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ticker-track {
+    animation: none;
+  }
+}
