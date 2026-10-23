@@ -11,6 +11,7 @@ import {
   purchaseRod,
   restoreEquippedRod,
   restoreRodOwnership,
+  sellInventoryProduct,
   startAnimalCycle,
   unlockLand,
 } from '../src/progression.js';
@@ -27,6 +28,8 @@ function makeState(balance = 100) {
   return {
     balance,
     sales: 7,
+    harvest: [10],
+    fish: [2],
     fields: [{ unlocked: true }, { unlocked: false }],
     fishingUnlocked: true,
     rods: { ordinary: 0, upgraded: 0 },
@@ -37,6 +40,45 @@ function makeState(balance = 100) {
     coop: { owned: false, activated: false, startedAt: null, collected: 0, expired: false },
   };
 }
+
+test('sells each product category once into the separate sales balance', () => {
+  const state = makeState();
+  state.hive.inventory = 3;
+  state.coop.inventory = 4;
+
+  assert.deepEqual(sellInventoryProduct(state, 'crop', 0, 0.01), {
+    status: 'sold', quantity: 10, proceeds: 0.1,
+  });
+  assert.deepEqual(sellInventoryProduct(state, 'fish', 0, 0.01), {
+    status: 'sold', quantity: 2, proceeds: 0.02,
+  });
+  assert.deepEqual(sellInventoryProduct(state, 'hive', null, 0.6), {
+    status: 'sold', quantity: 3, proceeds: 1.8,
+  });
+  assert.deepEqual(sellInventoryProduct(state, 'coop', null, 0.35), {
+    status: 'sold', quantity: 4, proceeds: 1.4,
+  });
+  assert.equal(state.sales, 10.32);
+  assert.equal(state.balance, 100);
+  assert.equal(state.harvest[0], 0);
+  assert.equal(state.fish[0], 0);
+  assert.equal(state.hive.inventory, 0);
+  assert.equal(state.coop.inventory, 0);
+  assert.deepEqual(sellInventoryProduct(state, 'crop', 0, 0.01), { status: 'empty' });
+  assert.equal(state.sales, 10.32);
+});
+
+test('rejects invalid and empty sales without changing balances or inventory', () => {
+  const state = makeState();
+  state.fish[0] = 0;
+
+  assert.deepEqual(sellInventoryProduct(state, 'crop', 4, 0.01), { status: 'invalid' });
+  assert.deepEqual(sellInventoryProduct(state, 'crop', 0, 0), { status: 'invalid' });
+  assert.deepEqual(sellInventoryProduct(state, 'fish', 0, 0.01), { status: 'empty' });
+  assert.equal(state.harvest[0], 10);
+  assert.equal(state.sales, 7);
+  assert.equal(state.balance, 100);
+});
 
 test('unlocks a plot once, at its configured price, and leaves insufficient balances unchanged', () => {
   const state = makeState(0.5);

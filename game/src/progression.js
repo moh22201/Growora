@@ -29,6 +29,34 @@ export function unlockLand(state, index, prices) {
   return 'purchased';
 }
 
+export function sellInventoryProduct(state, type, index, unitPrice) {
+  if (!Number.isFinite(unitPrice) || unitPrice <= 0) return { status: 'invalid' };
+  let amount;
+  let updateInventory;
+
+  if (type === 'crop' || type === 'fish') {
+    const inventory = type === 'crop' ? state.harvest : state.fish;
+    if (!Array.isArray(inventory) || !Number.isInteger(index) || index < 0 || index >= inventory.length) {
+      return { status: 'invalid' };
+    }
+    amount = inventory[index];
+    updateInventory = () => { inventory[index] = 0; };
+  } else if (type === 'hive' || type === 'coop') {
+    if (!state[type] || typeof state[type] !== 'object') return { status: 'invalid' };
+    amount = state[type].inventory;
+    updateInventory = () => { state[type].inventory = 0; };
+  } else {
+    return { status: 'invalid' };
+  }
+
+  if (!Number.isFinite(amount) || amount <= 0) return { status: 'empty' };
+  const proceeds = Number((amount * unitPrice).toFixed(6));
+  if (!Number.isFinite(state.sales) || !Number.isFinite(proceeds)) return { status: 'invalid' };
+  updateInventory();
+  state.sales = Number((state.sales + proceeds).toFixed(6));
+  return { status: 'sold', quantity: amount, proceeds };
+}
+
 export function purchaseRod(state, id, catalog) {
   const rod = catalog[id];
   if (!rod || !Object.hasOwn(state.rods, id)) return 'invalid';
