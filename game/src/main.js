@@ -1,4 +1,5 @@
 import Phaser from 'phaser';
+import { FarmAudio, normalizeAudioSettings } from './audio.js';
 import {
   activateAnimal as activateAnimalState,
   beginFishingAttempt,
@@ -10,6 +11,7 @@ import {
   purchaseRod,
   restoreEquippedRod,
   restoreRodOwnership,
+  sellInventoryProduct,
   startAnimalCycle as startAnimalCycleState,
   unlockLand,
 } from './progression.js';
@@ -72,7 +74,6 @@ const text = {
     garden: 'Island',
     animals: 'Bee & chicken',
     inventory: 'Harvest basket',
-    sellAll: 'Sell everything',
     emptyBag: 'Your basket is empty for now.',
     seeds: 'Seed pouch',
     buy: 'Buy',
@@ -172,8 +173,6 @@ const text = {
     password: 'Password',
     authDisclaimer: 'Accounts are not connected yet. This demo does not create or save a real account. Do not enter a real password; these fields are never sent or stored.',
     continueDemo: 'Continue to demo',
-    support: 'Support',
-    supportNotice: 'Support is not connected in this demo. Your game and balances are local-only.',
     notForSale: 'No crops to sell yet.',
     rareOnce: 'You have already caught the legendary fish. This roll became a gold fish.',
     languageName: 'English',
@@ -206,11 +205,14 @@ const text = {
     telegramReady: 'Launch link configured. Telegram Mini App setup is still required.',
     audioSettings: 'Audio controls',
     soundEffects: 'Sound effects',
+    masterVolume: 'Master volume',
+    farmAmbience: 'Farm ambience',
     music: 'Music',
     volume: 'Volume',
     mute: 'Mute',
     unmute: 'Unmute',
-    audioNotConnected: 'No game audio is connected yet; these separate preferences are saved for future audio integration.',
+    sound: 'Sound',
+    audioProcedural: 'Original synthesized music and farm sounds play after your first interaction.',
     telegram: 'Telegram',
     openTelegram: 'Open Growora in Telegram',
     telegramNotConfigured: 'Telegram launch is not configured. Set VITE_TELEGRAM_BOT_USERNAME and VITE_TELEGRAM_WEBAPP_SHORT_NAME to enable it.',
@@ -228,7 +230,6 @@ const text = {
     upgraded: 'Upgraded',
     legendary: 'Legendary',
     landCrop: 'Crop',
-    sellAnimal: 'Sell collected',
     noFishingArea: 'Unlock the fishing area to buy a rod or cast a line.',
     taskHeading: 'Your island goals',
     taskGarden: 'Tend your garden',
@@ -278,7 +279,6 @@ const text = {
     garden: 'Île',
     animals: 'Abeilles & poules',
     inventory: 'Panier',
-    sellAll: 'Tout vendre',
     emptyBag: 'Votre panier est vide pour le moment.',
     seeds: 'Sachet de graines',
     buy: 'Acheter',
@@ -378,8 +378,6 @@ const text = {
     password: 'Mot de passe',
     authDisclaimer: 'Les comptes ne sont pas encore connectés. Cette démo ne crée ni n’enregistre de vrai compte. N’utilisez pas un vrai mot de passe : ces champs ne sont ni envoyés ni enregistrés.',
     continueDemo: 'Continuer la démo',
-    support: 'Assistance',
-    supportNotice: 'L’assistance n’est pas connectée dans cette démo. Le jeu et les soldes restent locaux.',
     notForSale: 'Aucune récolte à vendre.',
     rareOnce: 'Vous avez déjà pêché le poisson légendaire. Ce lancer donne un poisson doré.',
     languageName: 'Français',
@@ -412,11 +410,14 @@ const text = {
     telegramReady: 'Le lien de lancement est configuré. La configuration Telegram Mini App reste nécessaire.',
     audioSettings: 'Commandes audio',
     soundEffects: 'Effets sonores',
+    masterVolume: 'Volume général',
+    farmAmbience: 'Ambiance de la ferme',
     music: 'Musique',
     volume: 'Volume',
     mute: 'Couper le son',
     unmute: 'Réactiver le son',
-    audioNotConnected: 'Aucun son de jeu n’est encore connecté; ces préférences séparées sont conservées pour une future intégration audio.',
+    sound: 'Son',
+    audioProcedural: 'La musique et les sons originaux sont synthétisés après votre première interaction.',
     telegram: 'Telegram',
     openTelegram: 'Ouvrir Growora dans Telegram',
     telegramNotConfigured: 'Le lancement Telegram n’est pas configuré. Définissez VITE_TELEGRAM_BOT_USERNAME et VITE_TELEGRAM_WEBAPP_SHORT_NAME pour l’activer.',
@@ -434,7 +435,6 @@ const text = {
     upgraded: 'Améliorée',
     legendary: 'Légendaire',
     landCrop: 'Culture',
-    sellAnimal: 'Vendre la récolte',
     noFishingArea: 'Débloquez la zone de pêche pour acheter une canne ou lancer la ligne.',
     taskHeading: 'Vos objectifs sur l’île',
     taskGarden: 'Entretenir le jardin',
@@ -488,10 +488,7 @@ function freshState() {
     ownedRods: { ordinary: false, upgraded: false, legendary: false },
     equippedRod: null,
     fishing: { busyUntil: null, catchDeadline: null, pendingFish: null, cooldownUntil: null, rodId: null },
-    audio: {
-      effects: { volume: 100, muted: false },
-      music: { volume: 100, muted: false },
-    },
+    audio: normalizeAudioSettings(),
     hive: { owned: false, activated: false, startedAt: null, collected: 0, inventory: 0, expired: false, speed: 1 },
     coop: { owned: false, activated: false, startedAt: null, collected: 0, inventory: 0, expired: false, speed: 1 },
     upgrades: { farming: false, fishing: false, bee: false, chicken: false },
@@ -517,10 +514,7 @@ function loadState() {
       ownedRods: restoreRodOwnership(Object.keys(initial.rods), parsed),
       equippedRod: restoreEquippedRod(Object.keys(initial.rods), parsed),
       fishing: { ...initial.fishing, ...parsed.fishing },
-      audio: {
-        effects: { ...initial.audio.effects, ...parsed.audio?.effects },
-        music: { ...initial.audio.music, ...parsed.audio?.music },
-      },
+      audio: normalizeAudioSettings(parsed.audio),
       hive: {
         ...initial.hive,
         ...parsed.hive,
@@ -545,6 +539,7 @@ let state = loadState();
 let appScreen = 'welcome';
 let authMode = 'signup';
 let activeTab = 'garden';
+let panelZoom = 1;
 let walletView = 'overview';
 let fieldActionOpen = false;
 let toastTimer;
@@ -552,6 +547,7 @@ let scene;
 let game;
 let pendingFishTimeout;
 const app = document.querySelector('#app');
+const audioEngine = new FarmAudio();
 
 function save() {
   localStorage.setItem(SAVE_KEY, JSON.stringify(state));
@@ -714,19 +710,17 @@ function unlockField(index) {
   notify(`${tr('field')} ${index + 1} · ${tr('unlocked')}`);
 }
 
-function sellEverything() {
-  const total = sellableValue();
-  if (total <= 0) {
-    notify(tr('notForSale'));
-    return;
-  }
-  state.harvest.fill(0);
-  state.fish.fill(0);
-  for (const type of Object.keys(animalSalePrices)) state[type].inventory = 0;
-  state.sales = Number((state.sales + total).toFixed(6));
+function sellProduct(type, index) {
+  const unitPrice = type === 'crop'
+    ? crops[index]?.unit
+    : type === 'fish'
+      ? fishTypes[index]?.price
+      : animalSalePrices[type];
+  const result = sellInventoryProduct(state, type, index, unitPrice);
+  if (result.status !== 'sold') return;
   save();
   render();
-  notify(`${tr('sold')} ${money(total)}`);
+  notify(`${tr('sold')} ${result.quantity} · ${money(result.proceeds)}`);
 }
 
 function interactField(index) {
@@ -925,19 +919,6 @@ function collectAnimal(type) {
   notify(`${tr('collectedProducts')} +${count}`);
 }
 
-function sellAnimal(type) {
-  if (!Object.hasOwn(animalSalePrices, type)) return;
-  const data = state[type];
-  if (!data.inventory) return;
-  const count = data.inventory;
-  const proceeds = count * animalSalePrices[type];
-  data.inventory = 0;
-  state.sales = Number((state.sales + proceeds).toFixed(6));
-  save();
-  render();
-  notify(`${tr('sold')} ${count} · ${money(proceeds)}`);
-}
-
 function welcomeMarkup() {
   return `<main class="welcome-screen">
     <img class="welcome-image" src="https://videotourl.com/images/1792722412491-0b6f9919-d426-4280-ab26-b33929fd7608.jpg" alt="">
@@ -991,11 +972,12 @@ function render() {
     });
     return;
   }
+  audioEngine.setScene(activeTab);
   const islandHost = app.querySelector('#island-game');
   const previousPopup = app.querySelector('.activity-panel');
   const popupScroll = previousPopup?.dataset.popupTab === activeTab
     ? {
-      panel: previousPopup.scrollTop,
+      panel: previousPopup.querySelector('.panel-content')?.scrollTop ?? previousPopup.scrollTop,
       nested: [...previousPopup.querySelectorAll('.shop-list, .market-list, .rod-list, .upgrade-list, .inventory-rows')]
         .map((element) => [element.className, element.scrollTop]),
     }
@@ -1023,7 +1005,7 @@ function render() {
         <div class="world-bottom-controls">
           <button class="world-bottom-control" data-action="open-panel" data-tab="wallet" aria-label="${tr('wallet')}"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M4 6.5h15a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h13v3.5"/><path d="M17 12h4m-3 0h.1"/></svg><b>${tr('wallet')}</b></button>
           <button class="world-bottom-control" data-action="open-panel" data-tab="market" aria-label="${tr('market')}"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M3 9h18l-2 12H5L3 9Zm1-5h16l2 5H2l2-5Z"/><path d="M9 13v4m6-4v4"/></svg><b>${tr('market')}</b></button>
-          <button class="world-bottom-control" data-action="open-panel" data-tab="support" aria-label="${tr('support')}"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M4 13v-2a8 8 0 0 1 16 0v2m-16 0v4a2 2 0 0 0 2 2h2v-7H6a2 2 0 0 0-2 2Zm16 0v4a2 2 0 0 1-2 2h-2v-7h2a2 2 0 0 1 2 2Zm-5 6a3 3 0 0 1-3 2h-2"/></svg><b>${tr('support')}</b></button>
+          <button class="world-bottom-control world-sound" data-action="toggle-audio" data-channel="master" aria-label="${tr(state.audio.master.muted ? 'unmute' : 'mute')}" aria-pressed="${state.audio.master.muted}" title="${tr(state.audio.master.muted ? 'unmute' : 'mute')}"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M4 10v4h4l5 4V6l-5 4H4Z"/>${state.audio.master.muted ? '<path d="m16 9 5 6m0-6-5 6"/>' : '<path d="M16 9a5 5 0 0 1 0 6m2-9a9 9 0 0 1 0 12"/>'}</svg><b>${tr('sound')}</b></button>
           <button class="world-bottom-control world-language" data-action="language" aria-label="${tr('languageLabel')}"><svg aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18m0-18a14 14 0 0 0 0 18"/></svg><b>${tr('lang')}</b></button>
         </div>
         ${fieldActionOpen ? `<div class="world-field-action">
@@ -1033,8 +1015,13 @@ function render() {
         </div>` : ''}
       </main>
       ${activeTab !== 'garden' ? `<div class="panel-backdrop" data-action="close-panel"><section class="activity-panel panel" role="dialog" aria-modal="true" aria-label="${panelTitle()}" data-panel data-popup-tab="${activeTab}">
-        <div class="modal-heading"><span>${panelTitle()}</span><button class="modal-close" data-action="close-panel" aria-label="${tr('close')}">×</button></div>
-        ${activeTab === 'settings' ? settingsMarkup() : activeTab === 'wallet' ? walletMarkup() : activeTab === 'tasks' ? tasksMarkup() : activeTab === 'profile' ? profileMarkup() : panelMarkup()}
+        <div class="modal-heading"><span>${panelTitle()}</span><div class="modal-controls">
+          <button class="modal-zoom" data-action="panel-zoom-out" aria-label="${tr('zoomOut')}">−</button>
+          <output class="modal-zoom-level" aria-live="polite">${Math.round(panelZoom * 100)}%</output>
+          <button class="modal-zoom" data-action="panel-zoom-in" aria-label="${tr('zoomIn')}">+</button>
+          <button class="modal-close" data-action="close-panel" aria-label="${tr('close')}">×</button>
+        </div></div>
+        <div class="panel-content" style="zoom:${panelZoom}">${activeTab === 'settings' ? settingsMarkup() : activeTab === 'wallet' ? walletMarkup() : activeTab === 'tasks' ? tasksMarkup() : activeTab === 'profile' ? profileMarkup() : panelMarkup()}</div>
       </section></div>` : ''}
       <div id="toast" class="toast" role="status"></div>
     </div>
@@ -1045,7 +1032,9 @@ function render() {
   }
   const nextPopup = app.querySelector('.activity-panel');
   if (popupScroll && nextPopup?.dataset.popupTab === activeTab) {
-    nextPopup.scrollTop = popupScroll.panel;
+    const content = nextPopup.querySelector('.panel-content');
+    if (content) content.scrollTop = popupScroll.panel;
+    else nextPopup.scrollTop = popupScroll.panel;
     for (const element of nextPopup.querySelectorAll('.shop-list, .market-list, .rod-list, .upgrade-list, .inventory-rows')) {
       const savedScroll = popupScroll.nested.find(([className]) => className === element.className);
       if (savedScroll) element.scrollTop = savedScroll[1];
@@ -1065,7 +1054,6 @@ function panelTitle() {
     inventory: 'inventory',
     shop: 'openShop',
     market: 'openMarket',
-    support: 'support',
     tasks: 'taskHeading',
     fishing: 'fishing',
     animals: 'animals',
@@ -1152,8 +1140,8 @@ function settingsMarkup() {
   return `<div class="settings-panel">
     <section class="settings-tools" aria-label="${tr('audioSettings')}">
       <h3>${tr('audioSettings')}</h3>
-      ${['effects', 'music'].map((channel) => {
-        const label = tr(channel === 'effects' ? 'soundEffects' : 'music');
+      ${['master', 'music', 'ambient'].map((channel) => {
+        const label = tr(channel === 'master' ? 'masterVolume' : channel === 'music' ? 'music' : 'farmAmbience');
         const preference = state.audio[channel];
         return `<div class="audio-control">
           <label for="audio-${channel}">${label} · ${tr('volume')}</label>
@@ -1164,7 +1152,7 @@ function settingsMarkup() {
           </div>
         </div>`;
       }).join('')}
-      <p class="wallet-notice"><span>ⓘ</span>${tr('audioNotConnected')}</p>
+      <p class="wallet-notice"><span>ⓘ</span>${tr('audioProcedural')}</p>
     </section>
     <section class="settings-tools telegram-tools" aria-label="${tr('telegram')}">
       <h3>${tr('telegram')}</h3>
@@ -1220,7 +1208,6 @@ function panelMarkup() {
   if (activeTab === 'inventory') return inventoryMarkup();
   if (activeTab === 'shop') return shopMarkup();
   if (activeTab === 'market') return marketMarkup();
-  if (activeTab === 'support') return `<div class="support-content"><span class="panel-icon blue">♡</span><h2>${tr('support')}</h2><p class="panel-description">${tr('supportNotice')}</p></div>`;
   if (activeTab === 'fishing') return fishingMarkup();
   if (activeTab === 'hive') return animalsMarkup('hive');
   if (activeTab === 'coop') return animalsMarkup('coop');
@@ -1329,21 +1316,22 @@ function shopMarkup() {
 }
 
 function marketMarkup() {
-  const cropValue = state.harvest.reduce((sum, amount, index) => sum + amount * crops[index].unit, 0);
-  const fishValue = state.fish.reduce((sum, amount, index) => sum + amount * fishTypes[index].price, 0);
-  const hiveValue = state.hive.inventory * animalSalePrices.hive;
-  const coopValue = state.coop.inventory * animalSalePrices.coop;
   const totalValue = sellableValue();
+  const marketRow = (type, index, icon, name, amount, unitPrice) => `<div class="market-row">
+    <span class="market-product">${icon} ${name}</span>
+    <span>${number(amount, type === 'crop' ? 2 : 0)} × ${money(unitPrice)}</span>
+    <b>${money(amount * unitPrice)}</b>
+    <button class="text-buy market-sell" data-action="sell-product" data-type="${type}" data-index="${index}">${tr('sell')}</button>
+  </div>`;
   return `<div class="panel-title"><span class="panel-icon gold">↗</span><div><span class="eyebrow">${tr('produce')}</span><h2>${tr('market')}</h2></div></div>
     <p class="panel-description">${state.language === 'fr' ? 'Échangez vos récoltes contre des pièces de jeu.' : 'Trade your harvest for pretend game coins.'}</p>
     <div class="market-total"><span>${tr('inventory')}</span><b>${money(totalValue)}</b></div>
-    <div class="market-list">${crops.map((crop, index) => state.harvest[index] > 0 ? `<div class="market-row"><span>${crop.icon} ${cropName(index)}</span><span>${number(state.harvest[index], 2)} × ${money(crop.unit)}</span><b>${money(state.harvest[index] * crop.unit)}</b></div>` : '').join('')}
-      ${fishTypes.map((fish, index) => state.fish[index] > 0 ? `<div class="market-row"><span>${fish.icon} ${fish.name}</span><span>${state.fish[index]} × ${money(fish.price)}</span><b>${money(state.fish[index] * fish.price)}</b></div>` : '').join('')}
-      ${state.hive.inventory > 0 ? `<div class="market-row"><span>🍯 ${tr('honeyProduct')}</span><span>${state.hive.inventory} × ${money(animalSalePrices.hive)}</span><b>${money(hiveValue)}</b></div>` : ''}
-      ${state.coop.inventory > 0 ? `<div class="market-row"><span>🥚 ${tr('eggProduct')}</span><span>${state.coop.inventory} × ${money(animalSalePrices.coop)}</span><b>${money(coopValue)}</b></div>` : ''}
+    <div class="market-list">${crops.map((crop, index) => state.harvest[index] > 0 ? marketRow('crop', index, crop.icon, cropName(index), state.harvest[index], crop.unit) : '').join('')}
+      ${fishTypes.map((fish, index) => state.fish[index] > 0 ? marketRow('fish', index, fish.icon, state.language === 'fr' ? fish.nameFr : fish.name, state.fish[index], fish.price) : '').join('')}
+      ${state.hive.inventory > 0 ? marketRow('hive', '', '🍯', tr('honeyProduct'), state.hive.inventory, animalSalePrices.hive) : ''}
+      ${state.coop.inventory > 0 ? marketRow('coop', '', '🥚', tr('eggProduct'), state.coop.inventory, animalSalePrices.coop) : ''}
       ${totalValue === 0 ? `<div class="empty-state"><span>🧺</span><p>${tr('emptyBag')}</p></div>` : ''}
     </div>
-    <button class="primary-button full-button" data-action="sell-all" ${totalValue === 0 ? 'disabled' : ''}>${tr('sellAll')} <span>${money(totalValue)} →</span></button>
     <div class="market-note"><span>ⓘ</span> ${state.language === 'fr' ? 'Les prix suivent les règles de la démo.' : 'Prices follow the approved demo game rules.'}</div>`;
 }
 
@@ -1423,7 +1411,6 @@ function animalCard(type) {
       ? `<button class="secondary-button full-button" data-action="activate-animal" data-id="${type}">${tr('activate')}</button>`
       : `<div class="animal-progress"><span><i style="width:${Math.min(100, countReady / max * 100)}%"></i></span><small>${productionLabel}${timerLabel} · ${tr('stock')}: ${data.inventory}</small></div>
       <div class="animal-actions">${ready > 0 ? `<button class="secondary-button" data-action="collect-animal" data-id="${type}">${isHive ? tr('collectHoney') : tr('collectEggs')} <b>+${ready}</b></button>` : ''}
-      ${data.inventory > 0 ? `<button class="secondary-button" data-action="sell-animal" data-id="${type}">${tr('sellAnimal')} <b>${data.inventory} · ${money(data.inventory * animalSalePrices[type])}</b></button>` : ''}
       ${!running || data.expired ? `<button class="primary-button" data-action="animal-cycle" data-id="${type}">${tr('startCycle')} <span>${money(fee)}</span></button>` : ''}
       ${running ? `<small class="expiry-text">${tr('cycleFee')}: ${money(fee)}</small>` : ''}
       ${running && !complete ? `<small class="expiry-text">${tr('expires')} ${duration(expiresAt - Date.now())}</small>` : ''}</div>`}
@@ -1451,10 +1438,19 @@ function bindActions() {
           break;
         case 'wallet-view': walletView = element.dataset.view; render(); break;
         case 'wallet-back': walletView = 'overview'; render(); break;
+        case 'panel-zoom-in':
+          panelZoom = Math.min(1.2, Number((panelZoom + 0.1).toFixed(2)));
+          render();
+          break;
+        case 'panel-zoom-out':
+          panelZoom = Math.max(0.8, Number((panelZoom - 0.1).toFixed(2)));
+          render();
+          break;
         case 'toggle-audio': {
           const channel = element.dataset.channel;
-          if (channel === 'effects' || channel === 'music') {
+          if (channel === 'master' || channel === 'music' || channel === 'ambient') {
             state.audio[channel].muted = !state.audio[channel].muted;
+            audioEngine.setSettings(state.audio);
             save();
             render();
           }
@@ -1502,7 +1498,7 @@ function bindActions() {
         case 'plant': plantField(fieldIndex); break;
         case 'harvest': harvestField(fieldIndex); break;
         case 'buy-seed': buySeed(fieldIndex); break;
-        case 'sell-all': sellEverything(); break;
+        case 'sell-product': sellProduct(element.dataset.type, Number(index)); break;
         case 'upgrade': buyUpgrade(id); break;
         case 'fish-unlock': buyFishingArea(); break;
         case 'buy-rod': buyRod(id); break;
@@ -1513,7 +1509,6 @@ function bindActions() {
         case 'activate-animal': activateAnimal(id); break;
         case 'animal-cycle': startAnimalCycle(id); break;
         case 'collect-animal': collectAnimal(id); break;
-        case 'sell-animal': sellAnimal(id); break;
         case 'welcome': state.seenWelcome = true; save(); render(); break;
         default: break;
       }
@@ -1522,10 +1517,11 @@ function bindActions() {
   app.querySelectorAll('[data-audio-volume]').forEach((element) => {
     element.addEventListener('input', () => {
       const channel = element.dataset.audioVolume;
-      if (channel !== 'effects' && channel !== 'music') return;
+      if (channel !== 'master' && channel !== 'music' && channel !== 'ambient') return;
       const volume = Number(element.value);
       if (!Number.isFinite(volume)) return;
       state.audio[channel].volume = Math.min(100, Math.max(0, volume));
+      audioEngine.setSettings(state.audio);
       save();
       const output = app.querySelector(`[data-audio-value="${channel}"]`);
       if (output) output.value = `${state.audio[channel].volume}%`;
@@ -1538,6 +1534,7 @@ function enterDemo() {
   state.seenWelcome = true;
   save();
   render();
+  audioEngine.start(state.audio, activeTab);
   if (!game) startGame();
 }
 
@@ -2348,6 +2345,7 @@ setInterval(() => {
 
 window.addEventListener('beforeunload', save);
 window.addEventListener('visibilitychange', () => {
+  audioEngine.setActive(document.visibilityState === 'visible');
   if (document.visibilityState === 'visible') {
     const returned = Date.now() - lastTick > 60_000;
     refresh();
