@@ -987,7 +987,21 @@ function render() {
       <main class="world-stage">
         <div id="island-game" class="island-canvas" aria-label="Growora animated farming island"></div>
         <header class="world-header">
-          <div class="world-brand" aria-label="Growora"><span class="world-brand-mark" aria-hidden="true">G</span><b>Growora</b></div>
+          <div class="world-brand-wrap">
+  <div class="world-brand" aria-label="Growora">
+    <span class="world-brand-mark" aria-hidden="true">G</span>
+    <b>Growora</b>
+  </div>
+  <div class="withdrawal-ticker" aria-label="Withdrawal updates">
+    <span class="ticker-label">💸 WITHDRAWALS</span>
+    <div class="ticker-window">
+      <div class="ticker-track">
+        <span>Withdrawal updates will appear here when real transaction data is connected.</span>
+        <span aria-hidden="true">Withdrawal updates will appear here when real transaction data is connected.</span>
+      </div>
+    </div>
+  </div>
+</div>
           <div class="world-header-controls">
             <button class="world-control world-profile" data-action="open-panel" data-tab="profile" aria-label="${tr('profile')}" title="${tr('profile')}"><svg aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.5"/><path d="M4.8 20a7.2 7.2 0 0 1 14.4 0"/></svg><small>${tr('profile')}</small></button>
             <button class="world-control world-balance" data-action="open-panel" data-tab="wallet" aria-label="${tr('playBalance')}"><svg aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 6.5v11M15 9.5c-.7-1-1.7-1.5-3-1.5-1.6 0-2.7.8-2.7 2s1.1 1.8 2.7 2 2.7.8 2.7 2-1.1 2-2.7 2c-1.3 0-2.4-.5-3-1.5"/></svg><small>${tr('playBalance')}</small><b>${money(state.balance)}</b></button>
